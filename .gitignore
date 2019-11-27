@@ -1,0 +1,11 @@
+*.pytest_cache
+*.DS_Store
+*.pyc
+*__pycache__
+*.ipynb_checkpoints
+Jupyter_Examples/
+*.so
+*bin/
+*.dSYM
+*pyclaw.log
+*.h5
