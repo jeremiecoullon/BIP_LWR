@@ -7,7 +7,6 @@ from collections import OrderedDict
 from copy import deepcopy
 from BIP_LWR.lwr.lwr_solver import LWR_Solver
 from BIP_LWR.samplers.replica_exchange.population_pt_sampler import PopulationPTSampler
-# from BIP_LWR.tools.MCMC_params import cov_inv,section_dict_70108_49t, section_dict_70108_49t_delCast_temp076, section_dict_70108_49t_delCast_temp058
 from BIP_LWR.tools.MCMC_FDBC_params import section_dict_70108_49t_delCast_temp044, section_dict_70108_49t, section_dict_70108_49t_delCast_temp076, section_dict_70108_49t_delCast_temp058
 from BIP_LWR.tools.MCMC_params import cov_inv_joint_DelCast_DS1
 from BIP_LWR.samplers.lwr.delcast_sampler import DelCastSampler
@@ -20,21 +19,12 @@ def build_sampler_fun(alpha_temp_cst, section_dict, cov, cov_joint):
 	Higher-order function: retuns a function that builds the sampler
 	"""
 	def define_delCastsampler_temp():
-		move_probs = [0.4, 0, 0.6]
+		move_probs = [0, 0, 1]
 		le_section_dict = section_dict
-		# cov = np.diag([10000, 20000, 4, 4])
-		# cov = cov_scaling*1.3*np.array([[ 0.57813554,  0.43065588, -0.00741665,  0.00030697],
-  #      [ 0.43065588,  3.74525188,  0.01785721, -0.00234262],
-  #      [-0.00741665,  0.01785721,  0.00054621,  0.00000921],
-  #      [ 0.00030697, -0.00234262,  0.00000921,  0.00001708]])
-		# cov_joint = cov_joint_scaling*deepcopy(cov_inv_joint_DelCast_DS1)
-		comments = "4 temperatures: [0.44, 0.58, 0.76, 1]. Same setup as thesis, but with population PT. width=4"
-		upload_to_S3 = True
-		# Jan6_2019-delCast-DS1_PT
-		# Feb4_2019-DelCast_DS1-FDBC
-		# Oct1_Paper_correlatedPTSampler_delCast_DS1/
-		config_dict = {'my_analysis_dir': '2019/Oct1_Paper_correlatedPTSampler_delCast_DS1/',
-					'run_num': 2,
+		comments = "BConly sampler. 3 temperatures: [0.58, 0.76, 1]. CorrPT with width=5"
+		upload_to_S3 = False
+		config_dict = {'my_analysis_dir': 'BConly_PopulationPT_sampler',
+					'run_num': 1,
 					'data_array_dict':
 					{'flow': 'data_array_70108_flow_49t.csv',
                     'density': 'data_array_70108_density_49t.csv'},
@@ -42,16 +32,18 @@ def build_sampler_fun(alpha_temp_cst, section_dict, cov, cov_joint):
 					'save_chain': True,
 					'comments': comments,
 					'ratio_times_BCs': 40,
-					'step_save': 31,}
+					'step_save': 1,}
 		lwr = LWR_Solver(config_dict=config_dict)
+
+		FD_initial = deepcopy(FD_delcast_ds1_FDBC)
+
 		# Mean of FD | BC_raw (from Dec2; run_6; local)
-		# FD_mean = {'rho_j': 451.61634886887066, 'u': 2.8720913517939604, 'w': 0.13347762896487803, 'z': 179.43205285224118}
-		# FD = OrderedDict()
-		# for k in ['z','rho_j','u','w']:
-		#     FD[k] = FD_mean[k]
-		# FD['BC_outlet'] = lwr.high_res_BCs("BC_outlet")
-		# FD['BC_inlet'] = lwr.high_res_BCs("BC_inlet")
-		FD = deepcopy(FD_delcast_ds1_FDBC)
+		FD_mean = {'rho_j': 451.61634886887066, 'u': 2.8720913517939604, 'w': 0.13347762896487803, 'z': 179.43205285224118}
+		FD = OrderedDict()
+		for k in ['z','rho_j','u','w']:
+		    FD[k] = FD_mean[k]
+		FD['BC_outlet'] = FD_initial['BC_outlet']
+		FD['BC_inlet'] = FD_initial['BC_inlet']
 
 		# ===== BC noise =====
 		# omega = 0.6
@@ -74,8 +66,6 @@ def build_sampler_fun(alpha_temp_cst, section_dict, cov, cov_joint):
 	return define_delCastsampler_temp
 
 
-# cov_scaling_list = np.array([2.5, 2, 1.5, 1])
-# cov_joint_scaling_list = np.array([2, 1.6, 1.4, 1])*2
 
 # beta=1
 cov3 = np.array([[ 0.66878389,  0.89393652, -0.00067186,  0.00210403],
@@ -105,26 +95,26 @@ cov0 = np.array([[ 1.69715527,  2.72433505, -0.03295926,  0.00081907],
        [ 0.00081907, -0.01433845,  0.00125811,  0.00026881]])
 cov_joint0 = deepcopy(cov_inv_joint_DelCast_DS1)*(1/0.44)
 
+# these are irrelevant as we're only sampling BCs
 cov_list = [cov0, cov1, cov2, cov3]
 cov_joint_list = [cov_joint0, cov_joint1, cov_joint2, cov_joint3]
 
-mcmc_fun0 = build_sampler_fun(alpha_temp_cst=0.44, section_dict=section_dict_70108_49t_delCast_temp044,
-	cov=cov_list[0], cov_joint=cov_joint_list[0])
 
-mcmc_fun1 = build_sampler_fun(alpha_temp_cst=0.58, section_dict=section_dict_70108_49t_delCast_temp058,
+# For population PT: index 0 is the untempered distribution
+mcmc_fun2 = build_sampler_fun(alpha_temp_cst=0.58, section_dict=section_dict_70108_49t_delCast_temp058,
 	cov=cov_list[1], cov_joint=cov_joint_list[1])
 
-mcmc_fun2 = build_sampler_fun(alpha_temp_cst=0.76, section_dict=section_dict_70108_49t_delCast_temp076,
+mcmc_fun1 = build_sampler_fun(alpha_temp_cst=0.76, section_dict=section_dict_70108_49t_delCast_temp076,
 	cov=cov_list[2], cov_joint=cov_joint_list[2])
 
-mcmc_fun3 = build_sampler_fun(alpha_temp_cst=1, section_dict=section_dict_70108_49t,
+mcmc_fun0 = build_sampler_fun(alpha_temp_cst=1, section_dict=section_dict_70108_49t,
 	cov=cov_list[3], cov_joint=cov_joint_list[3])
 
-# for population PT: index 0 is the untempered distribution
-dict_samplers = {0: mcmc_fun3, 1: mcmc_fun2, 2: mcmc_fun1, 3: mcmc_fun0}
-# mcmc = dict_samplers[0]()
-# mcmc.run(100, 10)
+dict_samplers = {0: mcmc_fun0, 1: mcmc_fun1, 2: mcmc_fun2}
 
+
+# numer of within temperature moves
 within_temp_iter = 3
-lesam = PopulationPTSampler(dict_samplers=dict_samplers, within_temp_iter=within_temp_iter, PT_width=4)
-lesam.run(300000, 2)
+lesam = PopulationPTSampler(dict_samplers=dict_samplers, within_temp_iter=within_temp_iter, PT_width=5)
+
+lesam.run(n_iter=3, print_rate=1)

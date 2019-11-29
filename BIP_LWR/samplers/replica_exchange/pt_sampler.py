@@ -4,7 +4,6 @@ import numpy as np
 
 from mpi4py import MPI
 from BIP_LWR.tools import util
-from BIP_LWR.backends.gibbs_backend import GibbsBackend
 from BIP_LWR.samplers.mhsampler import MHSampler
 from BIP_LWR.moves.gaussian import GaussianMove
 

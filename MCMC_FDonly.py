@@ -1,4 +1,16 @@
 #!/usr/bin/env python
+"""
+Runs MCMC for FD parameters given fixed BCs. BCs are from interpolated density from data.
+
+Saves the output to a hdf5 file in 'Analysis' folder which will be created in the
+parent directory of the root directory.
+
+To save results to S3:
+- set `upload_to_S3=True`
+- in `tools/util.py`, set the default bucket name of `upload_chain()` function to your bucket name
+- add your AWS config parameters as environment variables (boto will read them)
+
+"""
 
 import os
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -15,46 +27,9 @@ from BIP_LWR.tools.MCMC_FDBC_params import section_dict_70108_49t_delCast_temp04
 from BIP_LWR.traffic_data.chain_data.DelCast_DS1_FDBC.FD_DelCast_DS1_FDBC import FD_delcast_ds1_FDBC
 # --------------
 # --------------
-w_transf_type = 'inv'
 
+# temperature to temper the likelihood with: set to 1 to get target posterior
 alpha_temp_cst = 1
-
-# FD|BC for beta=1
-# cov = np.array([[ 0.66878389,  0.89393652, -0.00067186,  0.00210403],
-#        [ 0.89393652,  3.33640027,  0.00612946, -0.00136162],
-#        [-0.00067186,  0.00612946,  0.00484103,  0.00047524],
-       # [ 0.00210403, -0.00136162,  0.00047524,  0.00010494]])
-
-# FD|BC for beta=0.76
-# cov = np.array([[ 0.78746895,  1.27333014,  0.00141434,  0.00308789],
-#        [ 1.27333014,  5.9597071 ,  0.01655901, -0.00077557],
-#        [ 0.00141434,  0.01655901,  0.00573808,  0.00047403],
-#        [ 0.00308789, -0.00077557,  0.00047403,  0.00011784]])
-
-# FD|BC for beta=0.58
-# cov = np.array([[ 0.91032747,  0.97317003,  0.00399942,  0.00339584],
-#        [ 0.97317003,  6.24639295,  0.02674442, -0.00593384],
-#        [ 0.00399942,  0.02674442,  0.0056371 ,  0.00051024],
-#        [ 0.00339584, -0.00593384,  0.00051024,  0.00012784]])
-
-# for beta=0.44
-# cov = np.array([[ 1.69715527,  2.72433505, -0.03295926,  0.00081907],
-#        [ 2.72433505, 10.64697739, -0.06830345, -0.01433845],
-#        [-0.03295926, -0.06830345,  0.01229563,  0.00125811],
-#        [ 0.00081907, -0.01433845,  0.00125811,  0.00026881]])
-# for beta=0.15 (re-use for beta=0.2)
-# cov = np.array([[ 4.20024635,  4.24006613, -0.02955102,  0.00685512],
-#        [ 4.24006613, 23.06947014, -0.02415083, -0.0439088 ],
-#        [-0.02955102, -0.02415083,  0.03938422,  0.00430554],
-#        [ 0.00685512, -0.0439088 ,  0.00430554,  0.00093482]])
-# ===============
-# beta=1
-# cov_joint = 1.3*cov_inv_joint*(1/alpha_temp_cst)
-# # beta=0.58
-# cov_joint = 3*cov_inv_joint*(1/alpha_temp_cst)
-# beta=0.44
-cov_joint = cov_inv_joint_DelCast_DS1*(1/alpha_temp_cst)
-
 
 # For FD only sampling (March4)
 cov = np.array([[ 1.46565905, -0.43494473, -0.04680924,  0.00179531],
@@ -62,40 +37,32 @@ cov = np.array([[ 1.46565905, -0.43494473, -0.04680924,  0.00179531],
  [-0.04680924,  0.01936478,  0.00575797,  0.00036424],
  [ 0.00179531, -0.0128512,   0.00036424,  0.00008159]])
 
-# move_probs = [0.1, 0.3, 0.6] # moves: [FD, joint, BCs]
-move_probs = [1, 0, 0]
-# le_section_dict = section_dict_70108_49t_delCast_temp044
+move_probs = [1, 0, 0] # move probabilities: FD, joint move, BC
 le_section_dict = {'section_1': {'param': 'BC_inlet', 'cut1': 0, 'cut2': 1, 'omega': 1},}
-upload_to_S3 = True
-# comments = "FD and BC for alpha_temp_cst={}. With joint move and shift".format(alpha_temp_cst)
-# comments = "tune FD for alpha_temp_cst={}".format(alpha_temp_cst)
+upload_to_S3 = False # whether or not to upload the results to S3 rather than locally
 comments = "FD only sampling"
 
-# Jan6_2019-delCast-DS1_PT
-# Feb4_2019-DelCast_DS1-FDBC
-# March4_2019-DelCast_DS1-FDonly
-config_dict = {'my_analysis_dir': '2019/March4_2019-DelCast_DS1-FDonly',
+config_dict = {'my_analysis_dir': 'FD_only_sampling',
                 'run_num': 1,
                 'data_array_dict':
-                        # DATASET 1, 49 times, all spaces
+                        # Data: 49 times, all spaces
                         {'flow': 'data_array_70108_flow_49t.csv',
                         'density': 'data_array_70108_density_49t.csv'},
 
                 'upload_to_S3': upload_to_S3,
                 'save_chain': True,
-                'w_transf_type': w_transf_type,
+                'w_transf_type': 'inv',
                 'comments': comments,
+                # resolution for BCs
                 'ratio_times_BCs': 40,
+                # on which steps to save MCMC output
                 'step_save': 1,
-                # 'FD_only': True,
                       }
 
 # to get raw high dimensional BCs
 lwr = LWR_Solver(config_dict=config_dict)
 
 
-
-# Mean of FD | BC_raw (from Dec2; run_6; local)
 FD_mean = {'rho_j': 451.61634886887066, 'u': 2.8720913517939604, 'w': 0.13347762896487803, 'z': 179.43205285224118}
 
 FD = OrderedDict()
@@ -116,6 +83,8 @@ FD['BC_inlet'] = lwr.high_res_BCs("BC_inlet")
 FD['rho_j'] = np.random.normal(FD['rho_j'], scale=1e-6)
 
 
-mcmc = DelCastSampler(ICs=FD, cov=cov, cov_joint=cov_joint, section_dict=le_section_dict,
+mcmc = DelCastSampler(ICs=FD, cov=cov, section_dict=le_section_dict,
             move_probs=move_probs, config_dict=config_dict)
 mcmc.alpha_temp = alpha_temp_cst
+
+mcmc.run(n_iter=5, print_rate=1)

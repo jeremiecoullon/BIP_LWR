@@ -23,7 +23,7 @@ def int_ACT(x, M=50):
 
     Parameters
     ----------
-    x: ndarray 
+    x: ndarray
         MCMC samples
     M: int
         Cuttoff to estimate ACF. According to Sokal, M should be smallest value such that  M >= C*T_int.
@@ -261,11 +261,6 @@ def FD_neg_power(rho, w, u, rho_j, z):
     """
     return z * ( (u*rho/rho_j)**(-w) + (1-rho/rho_j)**(-w) )**(-1/w)
 
-def FD_exp(rho,alpha,beta):
-    """
-    V(rho) = a*exp(-b*rho)
-    """
-    return alpha*np.exp(-beta*rho)*rho
 
 def load_pickled_file(file):
     """
@@ -287,7 +282,7 @@ def upload_chain(s3_path, local_path, bucket_name='lwr-inverse-us-east'):
         Path to file in S3
     local_path: str
         Path to file on local machine
-    bucket_name: str 
+    bucket_name: str
         Either 'lwr-inverse-mcmc' or 'lwr-inverse-us-east' (the latter is default)
     """
     s3 = boto3.resource("s3")
@@ -305,7 +300,7 @@ def download_chain(s3_path, local_path, bucket_name='lwr-inverse-us-east'):
         Path to file in S3
     local_path: str
         Path to file on local machine
-    bucket_name: str 
+    bucket_name: str
         Either 'lwr-inverse-mcmc' or 'lwr-inverse-us-east'  (the latter is default)
     """
     s3 = boto3.resource("s3")
@@ -318,36 +313,3 @@ def download_chain(s3_path, local_path, bucket_name='lwr-inverse-us-east'):
                 print("The object does not exist.")
         else:
             raise
-
-def create_latex_table_section_dict(section_dict, mcmc_vis):
-    """
-    Function to create the inner portion of a latex table of Gibbs blocks fo the appendix.
-    Prints the output
-
-    Parameters
-    ----------
-
-    section_dict: dict 
-        Dictionary of gibbs blocks
-    mcmc_vis: mcmc_vis object
-
-
-    """
-    for k,v in section_dict.items():
-        accept_list = []
-        for chain_num in [1,2,3]:
-            accept_list.append(str(round(mcmc_vis.accept_Gibbs(chain_num=chain_num, section_num=int(k[8:])),1)))
-        accept_r = ", ".join(accept_list)
-        line1 = v['param'][3:] + " & " + str(v['cut1'])  + " & " + str(v['cut2']) + " & " + str(v['omega']) + " & "  
-        print(line1 + accept_r + " \\\ [1ex]\n \hline")
-        
-
-def create_latex_matrix(cov):
-    """
-    Create latex code for {pmatrix}
-    """
-    print("Matrix:\n{}".format(cov))
-    print("\n=====\nLatex:\n")
-    for elem in cov:
-        row_str = " & ".join([str(e) for e in elem])
-        print(row_str + " \\\ ")

@@ -5,8 +5,8 @@ Bayesian inverse problem for LWR
 
 ## installation
 
-- `virtualenv -p python3 venv; source venv/bin/activate`
-- `pip install -r requirements.txt`. Note that clawpack (the PDE solver) takes a while to install.
+- `virtualenv venv; source venv/bin/activate`
+- `pip install -r requirements.txt`
 - `make` (for the fortran solvers)
 - `make test`
 
@@ -21,7 +21,7 @@ Also need:
 
 Samples a 2D Gaussian using MH, and plot trace plots and kdeplots:
 
-Run demo: `python -m BIP_LWR.experiments.demo_mh_gaussian`
+Run demo: `python -m BIP_LWR.demos.demo_mh_gaussian`
 
 
 
@@ -29,7 +29,7 @@ Run demo: `python -m BIP_LWR.experiments.demo_mh_gaussian`
 
 You can read an overview of the LWR model [here](BIP_LWR/docs/lwr_overview.md)
 
-Run demo: `python -m BIP_LWR.experiments.demo_lwr_solver`
+Run demo: `python -m BIP_LWR.demos.demo_lwr_solver`
 
 - plots FD along with flow-density data
 - solves LWR with del Castillo using some parameters (and BCs sampled from the joint posterior)
@@ -39,7 +39,7 @@ Run demo: `python -m BIP_LWR.experiments.demo_lwr_solver`
 
 ### Run LWR MCMC
 
-Run demo: `python -m BIP_LWR.experiments.demo_lwr_mcmc`
+Run demo: `python -m BIP_LWR.demos.demo_lwr_mcmc`
 
 #### Sampler
 
@@ -58,4 +58,3 @@ Can modify the move probabilities (currently: `move_probs = [0.1, 0.1, 0.8]`)
 - Demo is set to run for 2 iterations. Need to run for at least 10,000 iterations to get a idea of what the posterior looks like (This should take around 12 hours for 3 chains running simultaneously)
 
 #### To diagnose chains
-
