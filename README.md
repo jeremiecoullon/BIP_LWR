@@ -6,6 +6,7 @@ Bayesian inverse problem for LWR
 ## installation
 
 - `virtualenv venv; source venv/bin/activate`
+- `pip install clawpack` (for some reason this package sometimes needs to be installed separately)
 - `pip install -r requirements.txt`
 - `make` (for the fortran solvers)
 - `make test`
@@ -17,39 +18,45 @@ Also need:
 
 ## Demos
 
-### Simple Metropolis Hasting example
-
-Samples a 2D Gaussian using MH, and plot trace plots and kdeplots:
-
-Run demo: `python -m BIP_LWR.demos.demo_mh_gaussian`
+1. Run demo: `python -m BIP_LWR.demos.demo_mh_gaussian`.
+  - Samples a 2D Gaussian using MH
+  - plots the trace plots and kdeplots:
 
 
-
-### Solve LWR
-
-You can read an overview of the LWR model [here](BIP_LWR/docs/lwr_overview.md)
-
-Run demo: `python -m BIP_LWR.demos.demo_lwr_solver`
-
-- plots FD along with flow-density data
-- solves LWR with del Castillo using some parameters (and BCs sampled from the joint posterior)
-- prints poisson loss
-- plots LWR output in x-t plane compared to data
+2. Run demo: `python -m BIP_LWR.demos.demo_lwr_solver`
+  - plots FD along with flow-density data
+  - solves LWR with del Castillo using some parameters (and BCs sampled from the joint posterior)
+  - prints poisson loss
+  - plots LWR output in x-t plane compared to data
 
 
-### Run LWR MCMC
+## Paper results
 
-Run demo: `python -m BIP_LWR.demos.demo_lwr_mcmc`
+### Run samplers
 
-#### Sampler
+Result 1 below (the notebook) runs the sampler and creates the figures found in the paper. Result 2-5 only run the MCMC sampler and saves the output in hdf5 files.
 
-Samples parameters in Del Castilo's FD along with boundary conditions (inlet and outlet).
-MCMC moves:
-1. Sample from $\pi(FD| BC)$ using Metropolis Hastings (random walk)
-2. Sample from $pi(FD, BC)$ using a joint proposal that aims to keep flow constant.
-3. Sample from $pi(BC | FD)$ using Gibbs blocks.
+If `upload_to_S3 = False` (in the relevant scripts) then the hdf5 file is created in the directory `../Analysis/`.
 
-Can modify the move probabilities (currently: `move_probs = [0.1, 0.1, 0.8]`)
+To save the output to S3 (for long runs):
+- change the bucket name in `BIP_LWR.tools.util.upload_chain` and `BIP_LWR.tools.util.download_chain`
+- Add your AWS credentials using `aws configure` (see [documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html))
+
+
+1. Direct fit (section 3.2 in the paper): Run the notebook `BIP_LWR/demos/FD_direct_fit_MCMC-delCast.ipynb`.
+2. FD only results (section 3.3): `./MCMC_FDonly.py`.
+3. BC only; PT sampler (section 4.2.2): `mpiexec -n 3 ./MCMC_BConly_PT.py`
+4. BC only; Population PT (section 4.3): `mpiexec -n 15 ./MCMC_BConly_PopulationPT.py`
+5. FD & BC; Population PT (section 5.1): `mpiexec -n 16 ./MCMC_FDBC_PopulationPT.py`
+
+### Analyse results
+
+todo:
+- get 4 notebooks from old laptop
+- put in `demos` and test
+
+
+## Other
 
 #### Settings
 
