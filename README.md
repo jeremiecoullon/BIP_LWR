@@ -51,17 +51,13 @@ To save the output to S3 (for long runs):
 
 ### Analyse results
 
-todo:
-- get 4 notebooks from old laptop
-- put in `demos` and test
+To analyse results from runs in the section above, run the notebooks in `BIP_LWR/demos/`. There is a notebook for each of the runs 2-5 above.
 
 
 ## Other
 
 #### Settings
 
-- Output saved in a pandas DataFrame in a hdf5 file (in "Analysis/2018/Demo_del_Castillo_MCMC/"). The file name is based on the initial conditions. The directory name is set manually (here it's "Demo_del_Castillo_MCMC/")
-- Can save the output to a S3 bucket: change the bucket name in `BIP_LWR.tools.util.upload_chain` and `BIP_LWR.tools.util.download_chain`
-- Demo is set to run for 2 iterations. Need to run for at least 10,000 iterations to get a idea of what the posterior looks like (This should take around 12 hours for 3 chains running simultaneously)
-
-#### To diagnose chains
+- Output saved in a pandas DataFrame in a hdf5 file (in `Analysis/FD_only_sampling/` for example). The file name is based on the initial conditions. The directory name is set manually (for example in `MCMC_FDonly.py` this is set at line 45: `'my_analysis_dir': 'FD_only_sampling'`).
+- Can also save the output to a S3 bucket: change the bucket name in `BIP_LWR.tools.util.upload_chain` and `BIP_LWR.tools.util.download_chain`
+- Each demo is set to run for a few iterations. For BC and (FD,BC) sampling, you need to run the chain for at least around 200K iterations to get enough posterior samples (This should take around 3 days)
