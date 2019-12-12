@@ -197,8 +197,8 @@ def plot_LWR_xt_on_ax(FD, data_variable, ax, fig, title_save=None, config_dict=N
             params["z"] = params.pop('z')
             my_FD = lambda x: FD_neg_power(rho=x, **params)
         rho_claw = list(map(my_FD, rho_claw))
-    # CS = ax.contourf(tt_LWR, xx_LWR,rho_claw, cmap=cm.coolwarm)
-    CS = ax.contourf(xx_LWR, tt_LWR,rho_claw, cmap=cm.coolwarm)
+    CS = ax.contourf(tt_LWR, xx_LWR,rho_claw, cmap=cm.coolwarm)
+    # CS = ax.contourf(tt_LWR, tt_LWR,rho_claw, cmap=cm.coolwarm)
 
     cbar = fig.colorbar(CS, shrink=0.8, extend='both')
     cbar.set_label('Density (veh/km)')#, size=25)
