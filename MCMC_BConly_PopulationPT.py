@@ -32,7 +32,8 @@ def build_sampler_fun(alpha_temp_cst, section_dict, cov, cov_joint):
 					'save_chain': True,
 					'comments': comments,
 					'ratio_times_BCs': 40,
-					'step_save': 1,}
+					# save MCMC sample every `save_step` number of steps
+					'step_save': 31,}
 		lwr = LWR_Solver(config_dict=config_dict)
 
 		FD_initial = deepcopy(FD_delcast_ds1_FDBC)

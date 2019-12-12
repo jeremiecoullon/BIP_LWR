@@ -22,12 +22,12 @@ plot_params = {'c':'royalblue', 'alpha':0.5, 's':30}
 
 
 
-def list_paths():
+def list_paths(base_path=""):
     """
     List all existing folder with MCMC chains in them (as hdf5 files)
     """
     path_list = []
-    for root, dirs, files in os.walk('MCMC_outputs'):
+    for root, dirs, files in os.walk(base_path+'MCMC_outputs'):
         # remove hidden files
         files = [x for x in files if x[0]!='.']
         if len(files)>0 and files[0][-2:]=='h5':
@@ -96,7 +96,7 @@ def download_chains_from_S3(data_directory, region='USEast'):
         new_s3_path = [elem for elem in s3_path.split('/') if 'poisson' not in elem]
         local_path = 'MCMC_outputs/S3/{}'.format(os.path.join(*new_s3_path[1:]))
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        # weird bug for files within '/process_0/' (it includes the folder itself in the list of files). 
+        # weird bug for files within '/process_0/' (it includes the folder itself in the list of files).
         # So only try to download files ending in 'h5'
         if s3_path[-2:] != 'h5':
             continue
@@ -500,9 +500,9 @@ class MCMC_vis:
         R_hat for a FD parameter.
         Cut all chains to the same length as the shortest run
 
-        Parameters 
+        Parameters
         ----------
-        param: str 
+        param: str
             FD parameter
         burnin: int
             burnin (default is 0)
@@ -522,9 +522,9 @@ class MCMC_vis:
         R_hat statistic: mixed_var / mean_vars
         Cut all chains to the same length as the shortest run
 
-        Parameters 
+        Parameters
         ----------
-        BC_type: str 
+        BC_type: str
             "BC_outlet" or "BC_inlet"
         BC_t: int
             BC time point to get R_hat for
@@ -554,13 +554,13 @@ class MCMC_vis:
         """
         Plot R_hat for 39 BC time points
 
-        Parameters 
+        Parameters
         ----------
-        BC_type: str 
+        BC_type: str
             "BC_outlet" or "BC_inlet"
         burnin: int
             burnin
-        figsize: tuple 
+        figsize: tuple
             Default is (14, 8)
         """
         N_BCs = len(self.d_samples['MCMC_1'].iloc[0].BC_outlet)
@@ -568,7 +568,7 @@ class MCMC_vis:
         x_range = np.arange(0, N_BCs, 39)
         for BC_t in x_range:
             R_hat_list.append(self.BC_R_hat(BC_type=BC_type, BC_t=BC_t, burnin=burnin))
-            
+
         plt.figure(figsize=figsize)
 
         if t_list is None:
@@ -1068,7 +1068,7 @@ class MCMC_vis:
     def MSEJD(self, chains=None, burnin=0, params=['z', 'rho_j', 'u', 'w']):
         """
         MSEJD for FD parameters
-        
+
         Parameters
         ----------
         chains : list

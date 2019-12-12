@@ -32,6 +32,7 @@ def build_sampler_fun(alpha_temp_cst, section_dict, cov, cov_joint):
 					'save_chain': True,
 					'comments': comments,
 					'ratio_times_BCs': 40,
+					# save MCMC sample every `save_step` number of steps
 					'step_save': 31,}
 		lwr = LWR_Solver(config_dict=config_dict)
 
@@ -99,7 +100,7 @@ cov_list = [cov0, cov1, cov2, cov3]
 cov_joint_list = [cov_joint0, cov_joint1, cov_joint2, cov_joint3]
 
 
-# For population PT: index 0 is the untempered distribution
+# index 0 is the untempered distribution
 mcmc_fun2 = build_sampler_fun(alpha_temp_cst=0.58, section_dict=section_dict_70108_49t_delCast_temp058,
 	cov=cov_list[1], cov_joint=cov_joint_list[1])
 

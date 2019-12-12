@@ -2,7 +2,7 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../lwr_inverse')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../BIP_LWR')))
 
-import lwr_inverse
+import BIP_LWR
 
